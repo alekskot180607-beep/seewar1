@@ -1,152 +1,38 @@
-
-fun createEmptyField(size: Int = 10): Array<CharArray> {
-    return Array(size) { CharArray(size) { '.' } }
-}
-
-fun cellChar(cell: Char, showShips: Boolean): Char {
-    if (!showShips && cell == '#') return '.'
-    return cell
-}
-
-fun printField(field: Array<CharArray>, title: String, showShips: Boolean = true, debug: Boolean = false) {
-    val size = field.size
-    val header = if (debug) "=== $title (debug) ===" else "=== $title ==="
-    println(header)
-
-    if (debug) {
-        val line = "   " + "+---".repeat(size) + "+"
-        println(line)
-        for (r in field.indices) {
-            print("%2d ".format(r))
-            for (c in field[r].indices) {
-                print("| ${cellChar(field[r][c], showShips)} ")
-            }
-            println("|")
-            println(line)
-        }
-    } else {
-        print("   ")
-        for (c in field.indices) print("$c ")
-        println()
-        for (r in field.indices) {
-            print("$r  ")
-            for (c in field[r].indices) {
-                print("${cellChar(field[r][c], showShips)} ")
-            }
-            println()
-        }
-    }
-}
-
-fun printBothFields(player: Array<CharArray>, enemy: Array<CharArray>, showEnemyShips: Boolean = false) {
-    if (player.size != enemy.size) {
-        println("Ошибка: поля разного размера (${player.size} и ${enemy.size})")
-        return
-    }
-
-    val size = player.size
-
-    print("   === Ваше поле ===")
-    print(" ".repeat(size * 2 + 6))
-    println("=== Поле противника ===")
-
-    print("   ")
-    for (c in 0 until size) print("$c ")
-    print("    ")
-    for (c in 0 until size) print("$c ")
-    println()
-
-    for (r in 0 until size) {
-        print("$r  ")
-        for (c in 0 until size) {
-            print("${cellChar(player[r][c], true)} ")
-        }
-        print("    ")
-        print("$r  ")
-        for (c in 0 until size) {
-            print("${cellChar(enemy[r][c], showEnemyShips)} ")
-        }
-        println()
-    }
-}
-
-fun printFields(fields: Array<Array<CharArray>>, titles: Array<String>, showShips: BooleanArray) {
-    if (fields.size != titles.size || fields.size != showShips.size) {
-        println("Ошибка: количество полей, заголовков и флагов не совпадает")
-        return
-    }
-
-    val size = fields[0].size
-    for (f in fields) {
-        if (f.size != size) {
-            println("Ошибка! поля разного размера")
-            return
-        }
-    }
-
-    for (i in titles.indices) print("=== ${titles[i]} ===" + " ".repeat(size * 2 + 4))
-    println()
-
-    print("   ")
-    for (i in fields.indices) {
-        for (c in 0 until size) print("$c ")
-        print("    ")
-    }
-    println()
-
-    for (r in 0 until size) {
-        print("$r  ")
-        for (i in fields.indices) {
-            for (c in 0 until size) {
-                print("${cellChar(fields[i][r][c], showShips[i])} ")
-            }
-            print("    ")
-        }
-        println()
-    }
-}
-
 fun main() {
-    val playerField = createEmptyField()
-    playerField[3][2] = '#'
-    playerField[3][3] = '#'
-    playerField[3][4] = '#'
-    playerField[3][5] = '#'
 
-    val enemyField = createEmptyField()
-    enemyField[5][7] = '#'
-    enemyField[6][7] = '#'
-    enemyField[7][7] = '#'
-    enemyField[5][5] = 'X'
-    enemyField[5][6] = 'O'
+    val player = Player()
+    player.name = "терминатор"
 
-    printField(playerField, "Ваше поле")
-    println()
-    printField(enemyField, "Поле противника", showShips = false)
+    player.registerShot(true)
+    player.registerShot(false)
+    player.registerShot(true)
 
-    println()
-    val smallField = createEmptyField(8)
-    printField(smallField, "Маленькое поле 8×8")
+    println(player.status())
+    // Ожидается: Игрок терминатор: палуб осталось 20, выстрелов 3, попаданий 2, точность 66.7%
 
-    println()
-    val bigField = createEmptyField(12)
-    printField(bigField, "Большое поле 12×12")
+    player.takeDamage()
+    player.takeDamage()
+    println(player.shipsLeft)    // 18
+    println(player.isAlive())    // true
 
-    println()
-    val defaultField = createEmptyField()
-    printField(defaultField, "Поле по умолчанию 10×10")
+    player.reset()
+    println(player.status())
+    //ождается: Игрок Вы: палуб осталось 20, выстрелов 0, попаданий 0, точность 0.0%
 
-    println()
-    printBothFields(playerField, enemyField)
+    // два игрока и печать
+    val enemy = Player()
+    enemy.name = "Компьютер"
+
+    // ставим корабли
+    player.field[3][2] = '#'
+    player.field[3][3] = '#'
+    enemy.field[5][7] = '#'
+    enemy.field[5][5] = 'X'
 
     println()
-    printField(playerField, "Ваше поле", debug = true)
+    printBothFields(player, enemy)
 
     println()
-    val thirdField = createEmptyField()
-    thirdField[2][2] = 'X'
-    val fields = arrayOf(playerField, enemyField, thirdField)
-    val titles = arrayOf("Ваше поле", "Противник", "Третье")
-    val show = booleanArrayOf(true, false, false)
-    printFields(fields, titles, show)
+    player.printStats()
+    enemy.printStats()
 }
