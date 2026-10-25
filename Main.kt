@@ -79,7 +79,7 @@ fun printFields(fields: Array<Array<CharArray>>, titles: Array<String>, showShip
     val size = fields[0].size
     for (f in fields) {
         if (f.size != size) {
-            println("Ошибка: поля разного размера")
+            println("Ошибка! поля разного размера")
             return
         }
     }
